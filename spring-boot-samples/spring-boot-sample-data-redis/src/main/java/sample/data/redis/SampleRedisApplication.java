@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,10 @@ public class SampleRedisApplication implements CommandLineRunner {
 
 	@Autowired
 	private StringRedisTemplate template;
-
+	
+	@Autowired
+	private PersonRepository repo;
+	
 	@Override
 	public void run(String... args) throws Exception {
 		ValueOperations<String, String> ops = this.template.opsForValue();
@@ -37,6 +40,20 @@ public class SampleRedisApplication implements CommandLineRunner {
 			ops.set(key, "foo");
 		}
 		System.out.println("Found key " + key + ", value=" + ops.get(key));
+		
+		/*
+		 * Redis Repository Stuff
+		 */
+		Person jon = new Person();
+		jon.firstname = "jon";
+		jon.lastname = "snow";
+		repo.save(jon);
+		
+		System.out.println(String.format("Saved %s ", jon));
+		
+		System.out.println(String.format("Loaded person %s from repo.", repo.findOne(jon.id)));
+		
+		System.out.println(String.format("Found person %s by lastname in repo.", repo.findByLastname(jon.lastname)));
 	}
 
 	public static void main(String[] args) throws Exception {
